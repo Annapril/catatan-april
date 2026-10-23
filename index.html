@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catatan Belajar</title>
+<style>
+:root{--rq:#F7CAC9;--rq2:#FCE8E7;--bg:#FBF4F4;--sb:#92A8D1;--sbd:#4F6A9E;--sb2:#EAF0F9;--ink:#27344F;--mut:#6C7A93;--line:#EBD8DA;--serif:"Iowan Old Style","Palatino Linotype",Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.5 var(--sans);color:var(--ink);background:var(--bg);display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:2px solid var(--sbd);outline-offset:2px}
+.nav{display:flex;align-items:center;gap:28px;padding:0 24px;height:56px;background:var(--rq);flex:none;overflow-x:auto}
+.brand{font:700 18px var(--serif);white-space:nowrap}
+.mn{background:none;border:0;height:56px;padding:0 4px;border-bottom:3px solid transparent;font-weight:600;color:#5a4a58}
+.mn.on{border-color:var(--sbd);color:var(--ink)}
+#page{flex:1;min-height:0}
+.btn{background:var(--sbd);color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:600}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--rq2)}
+.btn.full{width:100%}
+.mut{color:var(--mut)}
+/* dashboard */
+.dash{height:100%;overflow:auto;padding:28px 32px 48px;max-width:1100px;margin:0 auto}
+.dash h2{font:700 28px var(--serif);margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:20px 0}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat.hot{background:var(--rq);border-color:var(--rq)}
+.stat b{display:block;font:700 34px/1.1 var(--serif)}
+.g2{display:grid;grid-template-columns:3fr 2fr;gap:14px}
+@media(max-width:800px){.g2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.card h3{margin:0 0 14px;font:600 16px var(--serif)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px}
+.bars div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;align-items:center;gap:4px;font-size:11px;color:var(--mut)}
+.bars i{display:block;width:100%;background:var(--sb);border-radius:4px 4px 0 0;min-height:3px}
+.bars i.z{background:var(--line)}
+.bars .td i{background:var(--sbd)}
+.prow{margin-bottom:10px}
+.prow span{display:flex;justify-content:space-between}
+.prow u{display:block;height:6px;border-radius:3px;background:var(--sb2);margin-top:4px;overflow:hidden}
+.prow u i{display:block;height:100%;background:var(--sb)}
+.rec{display:flex;justify-content:space-between;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 4px}
+.rec:hover{background:var(--rq2)}
+/* columns */
+.cols{display:grid;grid-template-columns:200px 270px 1fr;height:100%}
+.cols2{display:grid;grid-template-columns:290px 1fr;height:100%}
+.col{background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.col.p{background:var(--rq2)}
+.bar{padding:12px;border-bottom:1px solid var(--line)}
+.lst{overflow:auto;flex:1;padding:8px}
+.item{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;background:none;padding:10px;border-radius:8px;margin-bottom:2px}
+.item:hover{background:var(--rq2)}
+.col.p .item:hover{background:#fff}
+.item.on{background:var(--sb2);box-shadow:inset 3px 0 var(--sbd)}
+.col.p .item.on{background:#fff}
+.item div{min-width:0}
+.item b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item span{color:var(--mut);font-size:12px}
+.link{border:1px dashed var(--sb);background:none;color:var(--sbd);padding:8px;border-radius:8px;margin:4px 8px}
+.empty{margin:auto;color:var(--mut);text-align:center;padding:24px;max-width:340px}
+#main,#kmain{display:flex;flex-direction:column;min-width:0;min-height:0;height:100%}
+.head{display:flex;gap:10px;align-items:center;padding:14px 28px 0}
+#title{flex:1;font:700 26px var(--serif);border:0;background:none;color:var(--ink);min-width:0}
+#title:focus{outline:none}
+#date{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;background:#fff}
+.tb{display:flex;flex-wrap:wrap;gap:4px;padding:10px 28px;border-bottom:1px solid var(--line)}
+.tb button{min-width:32px;height:32px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:0 8px}
+.tb button:hover{background:var(--rq2)}
+.tb .cd{background:var(--sb2);border-color:var(--sb);color:var(--sbd);font-weight:600}
+#ed{flex:1;overflow:auto;padding:24px 28px 60px;background:#fff;font:15.5px/1.75 var(--sans);outline:none}
+.doc h2{font:700 22px var(--serif);margin:1.3em 0 .4em}
+.doc h3{font:700 18px var(--serif);margin:1.2em 0 .3em;color:var(--sbd)}
+.doc blockquote{margin:1em 0;padding:.3em 1em;border-left:3px solid var(--rq);background:var(--rq2)}
+.doc pre{background:#f3f0f2;padding:12px;border-radius:8px;font:13px/1.5 ui-monospace,Consolas,monospace;white-space:pre-wrap}
+.doc img{max-width:100%}
+.doc mark{background:#fde68a}
+.code{margin:1em 0;border:1px solid #cfd9ec;border-radius:10px;overflow:hidden;background:var(--sb2)}
+.chead{display:flex;gap:6px;align-items:center;padding:6px 10px;background:#dae4f4;font:12px var(--sans);color:var(--sbd);user-select:none}
+.chead select{border:1px solid #b9c8e3;border-radius:6px;background:#fff;color:var(--ink);font:12px var(--sans);padding:2px 4px}
+.chead button{border:0;background:none;color:var(--sbd);padding:2px 6px;border-radius:6px;font-size:12px}
+.chead button:hover{background:#fff}
+.doc .code pre{margin:0;padding:12px 14px;background:none;border-radius:0;font:13.5px/1.6 ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;white-space:pre-wrap;outline:none;min-height:3em;tab-size:2}
+.status{font-size:12px;color:var(--mut)}
+/* knowledge */
+#pages{flex:1;overflow:auto;background:#dfe6f2;padding:18px;text-align:center}
+.page{position:relative;margin:0 auto 14px;background:#fff;box-shadow:0 1px 6px rgba(39,52,79,.18)}
+.page canvas{position:absolute;inset:0}
+.hl{position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none}
+.hl i{position:absolute}
+.textLayer{position:absolute;inset:0;overflow:hidden;line-height:1;text-align:left}
+.textLayer span,.textLayer br{color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0 0}
+.textLayer ::selection{background:rgba(79,106,158,.35)}
+#hlbar{position:fixed;z-index:9;display:flex;gap:6px;padding:6px 8px;background:var(--ink);border-radius:20px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#hlbar[hidden]{display:none}
+#hlbar button{width:22px;height:22px;border-radius:50%;border:2px solid #fff;padding:0}
+#print{display:none}
+@media(max-width:900px){.cols,.cols2{grid-template-columns:1fr;grid-template-rows:auto 220px 1fr;overflow:auto}.cols2{grid-template-rows:240px 1fr}}
+@media print{
+ @page{size:A4;margin:18mm 16mm}
+ body{background:#fff;display:block}
+ .nav,#page,#hlbar{display:none}
+ #print{display:block;font:11pt/1.7 var(--sans);color:#27344f}
+ #print .band{border-top:6px solid #F7CAC9;border-bottom:2px solid #92A8D1;padding:10mm 0 6mm;margin-bottom:8mm}
+ #print .pj{font:700 9.5pt var(--sans);color:#4F6A9E}
+ #print h1{font:700 26pt/1.2 var(--serif);margin:3mm 0 2mm}
+ #print .dt{font:10pt var(--sans);color:#6C7A93}
+ #print .doc h2{font-size:16pt;break-after:avoid}
+ #print .doc h3{font-size:13pt;break-after:avoid}
+ #print .doc blockquote,#print .code,#print .doc img{break-inside:avoid}
+ #print *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+<header class="nav" id="nav"></header>
+<div id="page"></div>
+<div id="hlbar" hidden></div>
+<div id="print"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const lk=ms=>new Date(ms-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>lk(Date.now());
+const fmt=d=>new Date(d+'T00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LANGS=['Python','SQL','BigQuery','R','Bash','JSON','Teks'];
+const COLORS=['#F4A3B0','#92A8D1','#FDE047','#86EFAC'];
+const WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let db;
+const S={projects:[],notes:[],pdfs:[],view:'dash',pid:null,nid:null,fid:null,zoom:1.3,tok:0};
+
+const openDB=()=>new Promise((ok,no)=>{const q=indexedDB.open('catatan-belajar',1);
+ q.onupgradeneeded=()=>['projects','notes','pdfs'].forEach(n=>q.result.createObjectStore(n,{keyPath:'id'}));
+ q.onsuccess=()=>{db=q.result;ok()};q.onerror=()=>no(q.error)});
+const tx=(s,m,f)=>new Promise((ok,no)=>{const t=db.transaction(s,m);const o=f(t.objectStore(s));t.oncomplete=()=>ok(o&&o.result);t.onerror=()=>no(t.error)});
+const getAll=s=>tx(s,'readonly',o=>o.getAll());
+const put=(s,v)=>tx(s,'readwrite',o=>o.put(v));
+const del=(s,id)=>tx(s,'readwrite',o=>o.delete(id));
+const curNote=()=>S.notes.find(x=>x.id===S.nid);
+const curPdf=()=>S.pdfs.find(x=>x.id===S.fid);
+
+function renderNav(){
+ $('#nav').innerHTML='<span class="brand">Catatan Belajar</span>'+[['dash','Dashboard'],['notes','Catatan'],['know','Knowledge']].map(([v,l])=>`<button class="mn ${S.view===v?'on':''}" data-v="${v}">${l}</button>`).join('');
+}
+function render(){
+ renderNav();S.tok++;
+ const P=$('#page');
+ if(S.view==='dash')P.innerHTML=dashHTML();
+ else if(S.view==='notes'){P.innerHTML='<div class="cols"><aside class="col p" id="cp"></aside><section class="col" id="cn"></section><main id="main"></main></div>';renderProj();renderList();renderEditor()}
+ else{P.innerHTML='<div class="cols2"><section class="col" id="ck"></section><main id="kmain"></main></div>';renderKList();renderViewer()}
+}
+
+/* ---------- Dashboard ---------- */
+function dashHTML(){
+ const dates=new Set(S.notes.map(n=>n.date));
+ let i=dates.has(today())?0:1,streak=0;
+ while(dates.has(lk(Date.now()-i*864e5))){streak++;i++}
+ const days=[...Array(14)].map((_,k)=>{const d=lk(Date.now()-(13-k)*864e5);return{d,c:S.notes.filter(n=>n.date===d).length}});
+ const mx=Math.max(1,...days.map(x=>x.c));
+ const code=S.notes.reduce((a,n)=>a+(n.html.match(/class="code"/g)||[]).length,0);
+ const hls=S.pdfs.reduce((a,f)=>a+(f.hl||[]).length,0);
+ const pm=Math.max(1,...S.projects.map(p=>S.notes.filter(n=>n.pid===p.id).length));
+ const rec=[...S.notes].sort((a,b)=>b.updated-a.updated).slice(0,6);
+ const pn=id=>S.projects.find(p=>p.id===id)?.name||'';
+ return `<div class="dash"><div style="display:flex;justify-content:space-between;gap:12px;align-items:end;flex-wrap:wrap"><div><h2>Selamat belajar</h2><div class="mut">${fmt(today())}</div></div><button class="btn" data-quick>+ Catatan hari ini</button></div>
+ <div class="stats"><div class="stat hot"><b>${streak}</b>hari beruntun</div><div class="stat"><b>${S.notes.length}</b>catatan</div><div class="stat"><b>${code}</b>blok kode</div><div class="stat"><b>${S.pdfs.length}</b>materi PDF</div><div class="stat"><b>${hls}</b>highlight</div></div>
+ <div class="g2"><div class="card"><h3>Catatan 14 hari terakhir</h3><div class="bars">${days.map((x,k)=>`<div class="${k===13?'td':''}" title="${x.d}: ${x.c}"><i class="${x.c?'':'z'}" style="height:${x.c/mx*85}%"></i>${+x.d.slice(8)}</div>`).join('')}</div></div>
+ <div class="card"><h3>Per project</h3>${S.projects.length?S.projects.map(p=>{const c=S.notes.filter(n=>n.pid===p.id).length;return `<div class="prow"><span><b>${esc(p.name)}</b><em class="mut" style="font-style:normal">${c}</em></span><u><i style="width:${c/pm*100}%"></i></u></div>`}).join(''):'<span class="mut">Belum ada project.</span>'}</div></div>
+ <div class="card"><h3>Terakhir diubah</h3>${rec.length?rec.map(n=>`<button class="rec" data-open="${n.id}"><b>${esc(n.title||'Tanpa judul')}</b><span class="mut">${esc(pn(n.pid))} · ${n.date}</span></button>`).join(''):'<span class="mut">Belum ada catatan. Mulai dengan tombol di kanan atas.</span>'}</div></div>`;
+}
+
+/* ---------- Catatan ---------- */
+function renderProj(){
+ $('#cp').innerHTML='<div class="lst">'+S.projects.map(p=>`<button class="item ${p.id===S.pid?'on':''}" data-p="${p.id}"><div><b>${esc(p.name)}</b></div><span>${S.notes.filter(n=>n.pid===p.id).length}</span></button>`).join('')+'</div><button class="link" id="addP">+ Project baru</button>'+(S.pid?'<button class="link" id="delP" style="color:var(--mut);border-color:var(--line)">Hapus project</button>':'');
+}
+function renderList(){
+ const c=$('#cn');
+ if(!S.pid){c.innerHTML='<p class="empty">Buat project dulu di kolom kiri, misalnya "Python" atau "SQL".</p>';return}
+ const notes=S.notes.filter(n=>n.pid===S.pid).sort((a,b)=>b.date.localeCompare(a.date)||b.updated-a.updated);
+ c.innerHTML=`<div class="bar"><button class="btn full" id="addN">+ Catatan baru</button></div><div class="lst">${notes.length?notes.map(n=>`<button class="item ${n.id===S.nid?'on':''}" data-n="${n.id}"><div><b>${esc(n.title||'Tanpa judul')}</b><span>${fmt(n.date)}</span></div></button>`).join(''):'<p class="empty">Belum ada catatan di project ini.</p>'}</div>`;
+}
+function renderEditor(){
+ const M=$('#main'),n=curNote();
+ if(!n){M.innerHTML='<div class="empty">Pilih catatan atau buat catatan baru.</div>';return}
+ M.innerHTML=`<div class="head"><input id="title" placeholder="Judul catatan" value="${esc(n.title)}"><input type="date" id="date" value="${n.date}"></div>
+ <div class="head" style="padding-top:8px"><span class="status" id="st">Tersimpan</span><span style="flex:1"></span><button class="btn ghost" id="delN">Hapus</button><button class="btn" id="pdfN">Ekspor PDF</button></div>
+ <div class="tb"><button class="cd" data-code title="Sisipkan kotak kode">{ } Kode</button>
+  <button data-c="bold"><b>B</b></button><button data-c="italic"><i>I</i></button><button data-c="underline"><u>U</u></button>
+  <button data-b="H2">H1</button><button data-b="H3">H2</button><button data-b="P">P</button>
+  <button data-c="insertUnorderedList">•</button><button data-c="insertOrderedList">1.</button>
+  <button data-b="BLOCKQUOTE">❝</button><button data-h="1">▮</button><button data-c="undo">↶</button><button data-c="redo">↷</button></div>
+ <div id="ed" class="doc" contenteditable="true" spellcheck="true">${n.html}</div>`;
+}
+let timer;
+function save(n){
+ const st=$('#st');st&&(st.textContent='Menyimpan…');
+ clearTimeout(timer);
+ timer=setTimeout(async()=>{n.updated=Date.now();await put('notes',n);const s=$('#st');s&&(s.textContent='Tersimpan');if(S.view==='notes'){renderProj();renderList()}},500);
+}
+async function newNote(){
+ if(!S.projects.length){const name=prompt('Nama project pertama (mis. Python, SQL):');if(!name||!name.trim())return;const p={id:uid(),name:name.trim(),created:Date.now()};await put('projects',p);S.projects.push(p);S.pid=p.id}
+ if(!S.pid)S.pid=S.projects[0].id;
+ const n={id:uid(),pid:S.pid,title:'',date:today(),html:'<p><br></p>',updated:Date.now()};
+ await put('notes',n);S.notes.push(n);S.nid=n.id;S.view='notes';render();$('#title')?.focus();
+}
+function insertCode(){
+ const ed=$('#ed'),s=getSelection();
+ if(!ed.contains(s.anchorNode)){const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);s.removeAllRanges();s.addRange(r)}
+ document.execCommand('insertHTML',false,`<div class="code" contenteditable="false"><div class="chead"><select>${LANGS.map(l=>`<option>${l}</option>`).join('')}</select><span style="flex:1"></span><button type="button" data-copy>Salin</button><button type="button" data-rmcode>Hapus</button></div><pre contenteditable="true" spellcheck="false" id="newcode"></pre></div><p><br></p>`);
+ const p=$('#newcode');if(p){p.removeAttribute('id');p.focus()}
+}
+function exportPDF(){
+ const n=curNote(),p=S.projects.find(x=>x.id===S.pid);
+ const w=document.createElement('div');w.innerHTML=$('#ed').innerHTML;
+ w.querySelectorAll('.code').forEach(c=>{const l=c.querySelector('select');c.querySelector('.chead').innerHTML='<span>'+esc(l?l.value:'')+'</span>';c.querySelector('pre').removeAttribute('contenteditable')});
+ $('#print').innerHTML=`<div class="band"><div class="pj">${esc(p?p.name:'')}</div><h1>${esc(n.title||'Tanpa judul')}</h1><div class="dt">${fmt(n.date)}</div></div><div class="doc">${w.innerHTML}</div>`;
+ const old=document.title;document.title=`${p?p.name:''} - ${n.title||'Catatan'} - ${n.date}`;
+ window.onafterprint=()=>{document.title=old;window.onafterprint=null};
+ window.print();
+}
+
+/* ---------- Knowledge ---------- */
+function renderKList(){
+ $('#ck').innerHTML=`<div class="bar"><button class="btn full" id="addF">+ Tambah PDF</button><input type="file" id="file" accept="application/pdf" multiple hidden></div><div class="lst">${S.pdfs.length?S.pdfs.map(f=>`<button class="item ${f.id===S.fid?'on':''}" data-f="${f.id}"><div><b>${esc(f.name)}</b><span>${(f.blob.size/1048576).toFixed(1)} MB · ${(f.hl||[]).length} highlight</span></div></button>`).join(''):'<p class="empty">Taruh PDF materi di sini untuk dibaca dan di-highlight.</p>'}</div>`;
+}
+function renderViewer(){
+ const M=$('#kmain'),f=curPdf();
+ if(!f){M.innerHTML='<div class="empty">Pilih materi dari daftar. Blok teks lalu pilih warna untuk highlight.</div>';return}
+ M.innerHTML=`<div class="head" style="padding-bottom:10px"><b style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(f.name)}</b><span class="status" id="pginfo"></span><button class="btn ghost" data-z="-.2">−</button><button class="btn ghost" data-z=".2">+</button><button class="btn ghost" id="delF">Hapus</button></div><div id="pages"></div>`;
+ openPdf();
+}
+let pdfDoc=null,obs=null;
+async function openPdf(){
+ const f=curPdf(),box=$('#pages');obs&&obs.disconnect();
+ if(!window.pdfjsLib){
+  box.innerHTML=`<iframe src="${URL.createObjectURL(f.blob)}" style="width:100%;height:100%;border:0;background:#fff" title="${esc(f.name)}"></iframe>`;
+  $('#pginfo').textContent='Mode dasar (highlight butuh internet)';return}
+ pdfjsLib.GlobalWorkerOptions.workerSrc=WORKER;
+ const tok=++S.tok;
+ try{
+  const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.blob.arrayBuffer())}).promise;
+  if(tok!==S.tok)return;pdfDoc=doc;
+  const v=(await doc.getPage(1)).getViewport({scale:S.zoom});
+  obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!e.target.dataset.done){e.target.dataset.done=1;drawPage(e.target,tok)}}),{root:box,rootMargin:'700px'});
+  for(let i=1;i<=doc.numPages;i++){const d=document.createElement('div');d.className='page';d.dataset.n=i;d.style.width=v.width+'px';d.style.height=v.height+'px';box.appendChild(d);obs.observe(d)}
+  $('#pginfo').textContent=doc.numPages+' halaman';
+ }catch(err){box.innerHTML='<p class="empty">PDF tidak bisa dibuka: '+esc(err.message)+'</p>'}
+}
+async function drawPage(d,tok){
+ const pg=await pdfDoc.getPage(+d.dataset.n);if(tok!==S.tok)return;
+ const vp=pg.getViewport({scale:S.zoom}),dpr=window.devicePixelRatio||1;
+ d.style.width=vp.width+'px';d.style.height=vp.height+'px';
+ const c=document.createElement('canvas');c.width=vp.width*dpr;c.height=vp.height*dpr;c.style.width=vp.width+'px';c.style.height=vp.height+'px';
+ const hl=document.createElement('div');hl.className='hl';
+ const tl=document.createElement('div');tl.className='textLayer';tl.style.setProperty('--scale-factor',vp.scale);
+ d.append(c,hl,tl);drawHl(d);
+ await pg.render({canvasContext:c.getContext('2d'),viewport:vp,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null}).promise;
+ pdfjsLib.renderTextLayer({textContentSource:await pg.getTextContent(),container:tl,viewport:vp,textDivs:[]});
+}
+function drawHl(d){
+ const h=d.querySelector('.hl');if(!h)return;
+ h.innerHTML=(curPdf().hl||[]).filter(x=>x.p==+d.dataset.n).map(x=>x.r.map(r=>`<i style="left:${r[0]*100}%;top:${r[1]*100}%;width:${r[2]*100}%;height:${r[3]*100}%;background:${x.c}"></i>`).join('')).join('');
+}
+const pageOf=n=>n&&(n.nodeType===3?n.parentElement:n).closest?.('.page');
+$('#hlbar').innerHTML=COLORS.map(c=>`<button data-hc="${c}" style="background:${c}" title="Highlight"></button>`).join('');
+document.addEventListener('mouseup',()=>setTimeout(()=>{
+ const s=getSelection(),b=$('#hlbar');
+ if(S.view!=='know'||s.isCollapsed||!pageOf(s.anchorNode)){b.hidden=true;return}
+ const r=s.getRangeAt(0).getBoundingClientRect();
+ b.style.left=Math.max(8,r.left+r.width/2-60)+'px';b.style.top=Math.max(62,r.top-42)+'px';b.hidden=false;
+},0));
+async function addHl(color){
+ const s=getSelection(),pg=pageOf(s.anchorNode);if(!pg)return;
+ const pr=pg.getBoundingClientRect();
+ const r=[...s.getRangeAt(0).getClientRects()].filter(q=>q.width>1&&q.height>1&&q.right>pr.left&&q.left<pr.right&&q.bottom>pr.top&&q.top<pr.bottom)
+  .map(q=>[(q.left-pr.left)/pr.width,(q.top-pr.top)/pr.height,q.width/pr.width,q.height/pr.height]);
+ if(!r.length)return;
+ const f=curPdf();(f.hl=f.hl||[]).push({p:+pg.dataset.n,c:color,r});
+ await put('pdfs',f);s.removeAllRanges();$('#hlbar').hidden=true;drawHl(pg);renderKList();
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click',async e=>{
+ const pgc=e.target.closest('.page');
+ if(pgc&&getSelection().isCollapsed){
+  const b=pgc.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height,f=curPdf();
+  const i=(f.hl||[]).findIndex(h=>h.p==+pgc.dataset.n&&h.r.some(r=>x>=r[0]&&x<=r[0]+r[2]&&y>=r[1]&&y<=r[1]+r[3]));
+  if(i>-1&&confirm('Hapus highlight ini?')){f.hl.splice(i,1);await put('pdfs',f);drawHl(pgc);renderKList()}
+  return}
+ const t=e.target.closest('button');if(!t)return;
+ const d=t.dataset;
+ if(d.v){S.view=d.v;return render()}
+ if(d.quick!==undefined)return newNote();
+ if(d.open){const n=S.notes.find(x=>x.id===d.open);S.pid=n.pid;S.nid=n.id;S.view='notes';return render()}
+ if(d.hc)return addHl(d.hc);
+ if(d.z){S.zoom=Math.min(2.6,Math.max(.8,S.zoom+ +d.z));return openPdf2()}
+ if(d.copy!==undefined){const txt=t.closest('.code').querySelector('pre').innerText;
+  try{await navigator.clipboard.writeText(txt)}catch{const a=document.createElement('textarea');a.value=txt;document.body.append(a);a.select();document.execCommand('copy');a.remove()}
+  t.textContent='Tersalin';setTimeout(()=>t.textContent='Salin',1200);return}
+ if(d.rmcode!==undefined){t.closest('.code').remove();const n=curNote();n.html=$('#ed').innerHTML;return save(n)}
+ if(d.p){S.pid=d.p;S.nid=null;return render()}
+ if(t.id==='addP'){
+  const name=prompt('Nama project (mis. Python, SQL, Statistik):');if(!name||!name.trim())return;
+  const p={id:uid(),name:name.trim(),created:Date.now()};await put('projects',p);S.projects.push(p);S.pid=p.id;S.nid=null;return render()}
+ if(t.id==='delP'){
+  if(!confirm('Hapus project ini beserta semua catatannya?'))return;
+  const id=S.pid;for(const n of S.notes.filter(x=>x.pid===id))await del('notes',n.id);
+  await del('projects',id);S.notes=S.notes.filter(x=>x.pid!==id);S.projects=S.projects.filter(x=>x.id!==id);
+  S.pid=S.projects[0]?.id||null;S.nid=null;return render()}
+ if(t.id==='addN')return newNote();
+ if(d.n){S.nid=d.n;return render()}
+ if(t.id==='delN'){if(!confirm('Hapus catatan ini?'))return;await del('notes',S.nid);S.notes=S.notes.filter(x=>x.id!==S.nid);S.nid=null;return render()}
+ if(t.id==='pdfN')return exportPDF();
+ if(t.id==='addF')return $('#file').click();
+ if(d.f){S.fid=d.f;return render()}
+ if(t.id==='delF'){if(!confirm('Hapus PDF ini?'))return;await del('pdfs',S.fid);S.pdfs=S.pdfs.filter(x=>x.id!==S.fid);S.fid=null;return render()}
+ if(t.closest('.tb')){
+  const ed=$('#ed');if(!ed.contains(document.activeElement))ed.focus();
+  if(d.code!==undefined)insertCode();
+  if(d.c)document.execCommand(d.c);
+  if(d.b)document.execCommand('formatBlock',false,d.b);
+  if(d.h)document.execCommand('hiliteColor',false,'#fde68a');
+  const n=curNote();n.html=ed.innerHTML;save(n)}
+});
+function openPdf2(){const sc=$('#pages');const r=sc.scrollTop/Math.max(1,sc.scrollHeight);sc.innerHTML='';S.tok++;openPdf().then(()=>{sc.scrollTop=r*sc.scrollHeight})}
+document.addEventListener('mousedown',e=>{if(e.target.closest('.tb button,#hlbar button'))e.preventDefault()});
+document.addEventListener('input',e=>{
+ const n=curNote();if(!n||S.view!=='notes')return;
+ if(e.target.id==='title'){n.title=e.target.value;save(n)}
+ else if(e.target.closest('#ed')){n.html=$('#ed').innerHTML;save(n)}
+});
+document.addEventListener('keydown',e=>{
+ const pre=e.target.closest?.('.code pre');if(!pre)return;
+ if(e.key==='Tab'){e.preventDefault();document.execCommand('insertText',false,'  ')}
+ else if(e.key==='Enter'){e.preventDefault();
+  const s=getSelection(),r=s.getRangeAt(0).cloneRange();r.selectNodeContents(pre);r.setStart(s.anchorNode,s.anchorOffset);
+  const end=s.isCollapsed&&r.toString()==='';
+  document.execCommand('insertText',false,end?'\n\n':'\n');if(end)s.modify('move','backward','character')}
+});
+document.addEventListener('paste',e=>{
+ if(!e.target.closest?.('.code pre'))return;
+ e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'));
+});
+document.addEventListener('change',async e=>{
+ const n=curNote(),t=e.target;
+ if(t.id==='date'&&n){n.date=t.value||today();save(n)}
+ if(t.matches?.('.chead select')){[...t.options].forEach(o=>o.toggleAttribute('selected',o.selected));n.html=$('#ed').innerHTML;save(n)}
+ if(t.id==='file'){
+  for(const f of t.files){if(f.type!=='application/pdf')continue;
+   const r={id:uid(),name:f.name,blob:f,hl:[],added:Date.now()};await put('pdfs',r);S.pdfs.push(r);S.fid=r.id}
+  render()}
+});
+
+(async()=>{
+ await openDB();
+ [S.projects,S.notes,S.pdfs]=await Promise.all([getAll('projects'),getAll('notes'),getAll('pdfs')]);
+ S.projects.sort((a,b)=>a.created-b.created);
+ S.pid=S.projects[0]?.id||null;
+ render();
+})();
+</script>
+</body>
+</html>
