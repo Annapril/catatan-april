@@ -231,6 +231,34 @@ body{background:radial-gradient(900px 520px at 12% -8%,rgba(247,202,201,.8),tran
 #date{border-radius:999px}
 #pages{background:linear-gradient(180deg,#E3E8F6,#F1E8F3)}
 }
+
+/* ===== panel project & catatan: scrollable + collapsible ===== */
+.cols{grid-template-columns:210px 280px minmax(0,1fr);transition:grid-template-columns .22s ease,grid-template-rows .22s ease}
+.cols.x1{grid-template-columns:52px 280px minmax(0,1fr)}
+.cols.x2{grid-template-columns:210px 52px minmax(0,1fr)}
+.cols.x1.x2{grid-template-columns:52px 52px minmax(0,1fr)}
+.cols .col.p{overflow-y:auto}
+.cols #cp .lst{flex:1 0 auto;overflow:visible}
+.cols #cn .lst{min-height:0}
+.bar{display:flex;gap:8px;align-items:center}
+.bar .btn.full{flex:1;width:auto;min-width:0}
+.chd{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 2px 18px;position:sticky;top:0;z-index:1;background:rgba(255,241,245,.95)}
+.chd b{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.cbtn{width:34px;height:34px;flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;display:grid;place-items:center;color:var(--ink);padding:0;cursor:pointer}
+.cbtn:hover{background:#FDE9EF;color:#D94A7C}
+.cbtn.ex svg{transform:rotate(180deg)}
+.col.cl{align-items:center;padding:12px 0;gap:14px;overflow:hidden!important}
+.col.cl .rl{writing-mode:vertical-rl;font-weight:800;letter-spacing:.16em;font-size:11px;color:var(--mut);text-transform:uppercase}
+@media(max-width:900px){
+ .cols,.cols.x1,.cols.x2,.cols.x1.x2{grid-template-columns:minmax(0,1fr)}
+ .cols{grid-template-rows:116px 176px minmax(430px,1fr)}
+ .cols.x1{grid-template-rows:48px 176px minmax(430px,1fr)}
+ .cols.x2{grid-template-rows:116px 48px minmax(430px,1fr)}
+ .cols.x1.x2{grid-template-rows:48px 48px minmax(430px,1fr)}
+ .col.cl{flex-direction:row;padding:0 8px 0 10px;justify-content:flex-start}
+ .col.cl .rl{writing-mode:horizontal-tb}
+ .cols #main{min-height:430px}
+}
 </style>
 </head>
 <body>
@@ -273,13 +301,32 @@ function hlCode(txt,lang){
  return out+esc(txt.slice(last));
 }
 const codeBody=(t,l)=>`<div class="cbody"><pre class="cl" aria-hidden="true">${hlCode(t,l)}</pre><pre class="ce" contenteditable="plaintext-only" spellcheck="false">${esc(t)}</pre></div>`;
+function ceText(n){let o='';n.childNodes.forEach(c=>{if(c.nodeType===3)o+=c.nodeValue;else if(c.nodeName==='BR')o+='\n';else{const t=ceText(c);o+=t;if(/^(DIV|P)$/.test(c.nodeName)&&!t.endsWith('\n')&&c.nextSibling)o+='\n'}});return o}
+function ceOff(ce,node,off){const r=document.createRange();r.selectNodeContents(ce);r.setEnd(node,off);const d=document.createElement('div');d.appendChild(r.cloneContents());return ceText(d).length}
+function ceEdit(ce,ins){
+ const s=getSelection();if(!s.rangeCount)return;
+ const txt=ceText(ce),r=s.getRangeAt(0);
+ const a=ceOff(ce,r.startContainer,r.startOffset),b=ceOff(ce,r.endContainer,r.endOffset);
+ let nt=txt.slice(0,a)+ins+txt.slice(b);
+ if(a+ins.length===nt.length&&ins.endsWith('\n'))nt+='\n';
+ ce.textContent=nt;
+ const rg=document.createRange(),tn=ce.firstChild;
+ if(tn)rg.setStart(tn,Math.min(a+ins.length,tn.length));else rg.setStart(ce,0);
+ rg.collapse(true);s.removeAllRanges();s.addRange(rg);
+ ce.dispatchEvent(new Event('input',{bubbles:true}));
+}
 function upgradeCode(root){root.querySelectorAll('.code').forEach(c=>{
  const l=c.querySelector('select');c.dataset.l=l?l.value:'Teks';
  if(!c.querySelector('.cbody')){const o=c.querySelector('pre'),t=o?o.textContent:'';o&&o.remove();c.insertAdjacentHTML('beforeend',codeBody(t,c.dataset.l))}
+ const ce=c.querySelector('.ce');
+ if(ce){const t=ceText(ce);if(ce.children.length||ce.textContent!==t)ce.textContent=t;c.querySelector('.cl').innerHTML=hlCode(t,c.dataset.l)}
 })}
 const WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 let db;
-const S={projects:[],notes:[],pdfs:[],view:'dash',pid:null,nid:null,fid:null,zoom:1.3,tok:0};
+const S={projects:[],notes:[],pdfs:[],view:'dash',pid:null,nid:null,fid:null,zoom:1.3,tok:0,cp:0,cn:0};
+try{const c=JSON.parse(localStorage.getItem('cb_cols')||'{}');S.cp=c.cp?1:0;S.cn=c.cn?1:0}catch{}
+const ICO='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5v14M17 7l-5 5 5 5"/></svg>';
+function applyCols(){const c=$('.cols');if(!c)return;c.classList.toggle('x1',!!S.cp);c.classList.toggle('x2',!!S.cn);try{localStorage.setItem('cb_cols',JSON.stringify({cp:S.cp,cn:S.cn}))}catch{}}
 
 const openDB=()=>new Promise((ok,no)=>{const q=indexedDB.open('catatan-belajar',1);
  q.onupgradeneeded=()=>['projects','notes','pdfs'].forEach(n=>q.result.createObjectStore(n,{keyPath:'id'}));
@@ -298,7 +345,7 @@ function render(){
  renderNav();S.tok++;IMG=null;placeBox();
  const P=$('#page');
  if(S.view==='dash')P.innerHTML=dashHTML();
- else if(S.view==='notes'){P.innerHTML='<div class="cols"><aside class="col p" id="cp"></aside><section class="col" id="cn"></section><main id="main"></main></div>';renderProj();renderList();renderEditor()}
+ else if(S.view==='notes'){P.innerHTML='<div class="cols'+(S.cp?' x1':'')+(S.cn?' x2':'')+'"><aside class="col p" id="cp"></aside><section class="col" id="cn"></section><main id="main"></main></div>';renderProj();renderList();renderEditor()}
  else{P.innerHTML='<div class="cols2"><section class="col" id="ck"></section><main id="kmain"></main></div>';renderKList();renderViewer()}
 }
 
@@ -332,13 +379,16 @@ function dashHTML(){
 
 /* ---------- Catatan ---------- */
 function renderProj(){
- $('#cp').innerHTML='<div class="lst">'+S.projects.map(p=>`<button class="item ${p.id===S.pid?'on':''}" data-p="${p.id}"><div><b>${esc(p.name)}</b></div><span>${S.notes.filter(n=>n.pid===p.id).length}</span></button>`).join('')+'</div><button class="link" id="addP">+ Project baru</button>'+(S.pid?'<button class="link" id="delP" style="color:var(--mut);border-color:var(--line)">Hapus project</button>':'');
+ const cp=$('#cp');cp.classList.toggle('cl',!!S.cp);
+ if(S.cp){cp.innerHTML='<button class="cbtn ex" data-col="cp" title="Tampilkan panel project">'+ICO+'</button><span class="rl">Project</span>';return}
+ cp.innerHTML='<div class="chd"><b>Project</b><button class="cbtn" data-col="cp" title="Sembunyikan panel project">'+ICO+'</button></div><div class="lst">'+S.projects.map(p=>`<button class="item ${p.id===S.pid?'on':''}" data-p="${p.id}"><div><b>${esc(p.name)}</b></div><span>${S.notes.filter(n=>n.pid===p.id).length}</span></button>`).join('')+'</div><button class="link" id="addP">+ Project baru</button>'+(S.pid?'<button class="link" id="delP" style="color:var(--mut);border-color:var(--line)">Hapus project</button>':'');
 }
 function renderList(){
- const c=$('#cn');
- if(!S.pid){c.innerHTML='<p class="empty">Buat project dulu di kolom kiri, misalnya "Python" atau "SQL".</p>';return}
+ const c=$('#cn');c.classList.toggle('cl',!!S.cn);
+ if(S.cn){c.innerHTML='<button class="cbtn ex" data-col="cn" title="Tampilkan panel catatan">'+ICO+'</button><span class="rl">Catatan</span>';return}
+ if(!S.pid){c.innerHTML='<div class="bar" style="justify-content:flex-end"><button class="cbtn" data-col="cn" title="Sembunyikan panel catatan">'+ICO+'</button></div><p class="empty">Buat project dulu di kolom kiri, misalnya "Python" atau "SQL".</p>';return}
  const notes=S.notes.filter(n=>n.pid===S.pid).sort((a,b)=>b.date.localeCompare(a.date)||b.updated-a.updated);
- c.innerHTML=`<div class="bar"><button class="btn full" id="addN">+ Catatan baru</button></div><div class="lst">${notes.length?notes.map(n=>`<button class="item ${n.id===S.nid?'on':''}" data-n="${n.id}"><div><b>${esc(n.title||'Tanpa judul')}</b><span>${fmt(n.date)}</span></div></button>`).join(''):'<p class="empty">Belum ada catatan di project ini.</p>'}</div>`;
+ c.innerHTML=`<div class="bar"><button class="btn full" id="addN">+ Catatan baru</button><button class="cbtn" data-col="cn" title="Sembunyikan panel catatan">${ICO}</button></div><div class="lst">${notes.length?notes.map(n=>`<button class="item ${n.id===S.nid?'on':''}" data-n="${n.id}"><div><b>${esc(n.title||'Tanpa judul')}</b><span>${fmt(n.date)}</span></div></button>`).join(''):'<p class="empty">Belum ada catatan di project ini.</p>'}</div>`;
 }
 function renderEditor(){
  const M=$('#main'),n=curNote();
@@ -515,6 +565,7 @@ document.addEventListener('click',async e=>{
   return}
  const t=e.target.closest('button');if(!t)return;
  const d=t.dataset;
+ if(d.col){S[d.col]=S[d.col]?0:1;applyCols();return d.col==='cp'?renderProj():renderList()}
  if(d.v){S.view=d.v;return render()}
  if(d.quick!==undefined)return newNote();
  if(d.open){const n=S.notes.find(x=>x.id===d.open);S.pid=n.pid;S.nid=n.id;S.view='notes';return render()}
@@ -559,7 +610,7 @@ function openPdf2(){const sc=$('#pages');const r=sc.scrollTop/Math.max(1,sc.scro
 document.addEventListener('mousedown',e=>{if(e.target.closest('.tb button,#hlbar button,#imgbar button'))e.preventDefault()});
 document.addEventListener('input',e=>{
  const ce=e.target.closest?.('.ce');
- if(ce){const c=ce.closest('.code');c.querySelector('.cl').innerHTML=hlCode(ce.textContent,c.dataset.l)}
+ if(ce){const c=ce.closest('.code');c.querySelector('.cl').innerHTML=hlCode(ceText(ce),c.dataset.l)}
  const n=curNote();if(!n||S.view!=='notes')return;
  if(e.target.id==='title'){n.title=e.target.value;save(n)}
  else if(e.target.closest('#ed')){IMG=null;placeBox();autoList(e);n.html=$('#ed').innerHTML;save(n)}
@@ -572,21 +623,18 @@ document.addEventListener('keydown',e=>{
    if(li){e.preventDefault();document.execCommand(e.shiftKey?'outdent':'indent');const n=curNote();n.html=$('#ed').innerHTML;save(n)}}
   return}
  if(e.key==='Tab'){e.preventDefault();document.execCommand('insertText',false,'  ')}
- else if(e.key==='Enter'){e.preventDefault();
-  const s=getSelection(),r=s.getRangeAt(0).cloneRange();r.selectNodeContents(ce);r.setStart(s.anchorNode,s.anchorOffset);
-  const end=s.isCollapsed&&r.toString()==='';
-  document.execCommand('insertText',false,end?'\n\n':'\n');if(end)s.modify('move','backward','character')}
+ else if(e.key==='Enter'&&!e.isComposing){e.preventDefault();ceEdit(ce,'\n')}
 });
 document.addEventListener('paste',e=>{
  const cd=e.clipboardData;
- if(e.target.closest?.('.ce')){e.preventDefault();document.execCommand('insertText',false,cd.getData('text/plain'));return}
+ if(e.target.closest?.('.ce')){e.preventDefault();ceEdit(e.target.closest('.ce'),cd.getData('text/plain').replace(/\r\n?/g,'\n'));return}
  const im=e.target.closest?.('#ed')?[...cd.files].filter(f=>f.type.startsWith('image/')):[];
  if(im.length){e.preventDefault();im.forEach(insertImage)}
 });
 document.addEventListener('change',async e=>{
  const n=curNote(),t=e.target;
  if(t.id==='date'&&n){n.date=t.value||today();save(n)}
- if(t.matches?.('.chead select')){[...t.options].forEach(o=>o.toggleAttribute('selected',o.selected));const c=t.closest('.code');c.dataset.l=t.value;c.querySelector('.cl').innerHTML=hlCode(c.querySelector('.ce').textContent,t.value);n.html=$('#ed').innerHTML;save(n)}
+ if(t.matches?.('.chead select')){[...t.options].forEach(o=>o.toggleAttribute('selected',o.selected));const c=t.closest('.code');c.dataset.l=t.value;c.querySelector('.cl').innerHTML=hlCode(ceText(c.querySelector('.ce')),t.value);n.html=$('#ed').innerHTML;save(n)}
  if(t.id==='imgf'){for(const f of t.files)insertImage(f);t.value=''}
  if(t.id==='file'){
   for(const f of t.files){if(f.type!=='application/pdf')continue;
